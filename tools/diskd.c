@@ -41,7 +41,7 @@
 #include <time.h>
 #include <string.h>
 
-#include <crm/attrd.h>
+#include </opt/pacemaker/include/crm/common/attrd_internal.h>
 #include <crm/common/mainloop.h>
 
 #ifdef HAVE_GETOPT_H
@@ -93,7 +93,7 @@ void *ptr = NULL;
 void *buf;
 
 #if PACEMAKER_GE_1113
-int attr_options = attrd_opt_none;
+int attr_options = pcmk__node_attr_none;
 #else
 gboolean attr_options = FALSE;
 #endif
@@ -119,7 +119,8 @@ static void diskd_thread_timer_variable_free(void);
 static void diskd_thread_condsend(void);
 static void diskd_thread_timer_end(void);
 void send_update(void);
-void crm_make_daemon(const char *name, gboolean daemonize, const char *pidfile);
+//void crm_make_daemon(const char *name, gboolean daemonize, const char *pidfile);
+void pcmk__daemonize(const char *name, const char *pidfile);
 
 static void
 diskd_shutdown(int nsig)
@@ -136,7 +137,7 @@ diskd_shutdown(int nsig)
 	if (mainloop != NULL && g_main_is_running(mainloop)) {
 		g_main_quit(mainloop);
 	} else {
-		crm_exit(EX_OK);
+		crm_exit(0);
 	}
 }
 
@@ -749,7 +750,9 @@ main(int argc, char **argv)
 		crm_exit(rc);
 	}
 
-	crm_make_daemon(crm_system_name, daemonize, pid_file);
+        if (daemonize) {
+	    pcmk__daemonize(crm_system_name, pid_file);
+        }
 	diskd_thread_timer_init();
 
 	if ( wflag ) {	/* writer */
@@ -807,13 +810,13 @@ send_update(void)
 #endif
 
 	if (boFirst) {
-	    rc = attrd_update_delegate(NULL, 'B', NULL, diskd_attr,
+	    rc = pcmk__node_attr_request(NULL, 'B', NULL, diskd_attr,
 		diskcheck_value, attr_section, attr_set, attr_dampen, NULL, attr_options);
 	    if (rc == pcmk_ok) {
 			boFirst = FALSE;
 	    }
 	} else {
-	    rc = attrd_update_delegate(NULL, 'U', NULL, diskd_attr,
+	    rc = pcmk__node_attr_request(NULL, 'U', NULL, diskd_attr,
 		diskcheck_value, attr_section, attr_set, attr_dampen, NULL, attr_options);
 	}
 

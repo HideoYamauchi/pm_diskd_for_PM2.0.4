@@ -41,7 +41,7 @@
 #include <time.h>
 #include <string.h>
 
-#include </opt/pacemaker/include/crm/common/attrd_internal.h>
+#include </opt/pacemaker-Pacemaker-2.0.4/include/crm/common/attrd_internal.h>
 #include <crm/common/mainloop.h>
 
 #ifdef HAVE_GETOPT_H
@@ -119,8 +119,8 @@ static void diskd_thread_timer_variable_free(void);
 static void diskd_thread_condsend(void);
 static void diskd_thread_timer_end(void);
 void send_update(void);
-//void crm_make_daemon(const char *name, gboolean daemonize, const char *pidfile);
-void pcmk__daemonize(const char *name, const char *pidfile);
+void crm_make_daemon(const char *name, gboolean daemonize, const char *pidfile);
+//void pcmk__daemonize(const char *name, const char *pidfile);
 
 static void
 diskd_shutdown(int nsig)
@@ -749,10 +749,12 @@ main(int argc, char **argv)
 		rc = oneshot();
 		crm_exit(rc);
 	}
-
+#if 0
         if (daemonize) {
 	    pcmk__daemonize(crm_system_name, pid_file);
         }
+#endif
+        crm_make_daemon(crm_system_name, daemonize, pid_file);
 	diskd_thread_timer_init();
 
 	if ( wflag ) {	/* writer */
